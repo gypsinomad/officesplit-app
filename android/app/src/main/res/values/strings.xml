@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">OfficeSplit</string>
+    <string name="title_activity_main">OfficeSplit</string>
+    <string name="package_name">com.gypsinomad.officesplit</string>
+    <string name="custom_url_scheme">com.gypsinomad.officesplit</string>
+</resources>
