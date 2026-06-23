@@ -34,9 +34,16 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Decode keystore
+      - name: Generate keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d '\n' | base64 -d > android/app/officesplit.jks
+          keytool -genkeypair -v \
+            -keystore android/app/officesplit.jks \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias officesplit \
+            -storepass officesplit123 \
+            -keypass officesplit123 \
+            -dname "CN=OfficeSplit,OU=Dev,O=Gypsinomad,L=Kozhikode,ST=Kerala,C=IN"
+          echo "Keystore generated:"
           ls -la android/app/officesplit.jks
 
       - name: Sync Capacitor
@@ -50,18 +57,13 @@ jobs:
         run: |
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=${{ github.workspace }}/android/app/officesplit.jks \
-            -Pandroid.injected.signing.store.password=${{ secrets.STORE_PASSWORD }} \
-            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }} \
-            -Pandroid.injected.signing.store.type=JKS
+            -Pandroid.injected.signing.store.password=officesplit123 \
+            -Pandroid.injected.signing.key.alias=officesplit \
+            -Pandroid.injected.signing.key.password=officesplit123
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: officesplit-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
-
-      - name: Upload APK to release
-        if: success()
-        run: echo "APK built successfully!"
